@@ -2,11 +2,10 @@ import express from "express";
 import { Server } from "socket.io";
 import { createServer } from "http";
 import cors from "cors";
-import jwt from "jsonwebtoken";
-import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+dotenv.config();
 
-const secretKeyJWT = "asdasdsadasdasdasdsa";
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 const app = express();
 const server = createServer(app);
@@ -23,50 +22,42 @@ app.use(
     origin: "http://localhost:5173",
     methods: ["GET", "POST"],
     credentials: true,
-  })
+	})
 );
 
 app.get("/", (req, res) => {
   res.send("Hello World!");
 });
-
-app.get("/login", (req, res) => {
-  const token = jwt.sign({ _id: "asdasjdhkasdasdas" }, secretKeyJWT);
-
-  res
-    .cookie("token", token, { httpOnly: true, secure: true, sameSite: "none" })
-    .json({
-      message: "Login Success",
-    });
-});
-
-io.use((socket, next) => {
-  cookieParser()(socket.request, socket.request.res, (err) => {
-    if (err) return next(err);
-
-    const token = socket.request.cookies.token;
-    if (!token) return next(new Error("Authentication Error"));
-
-    const decoded = jwt.verify(token, secretKeyJWT);
-    next();
-  });
-});
+let chatHistory = [];
 
 io.on("connection", (socket) => {
-  console.log("User Connected", socket.id);
-
-  socket.on("message", ({ room, message }) => {
-    console.log({ room, message });
-    socket.to(room).emit("receive-message", message);
+  socket.emit("chatHistory", chatHistory);
+  socket.on("userConnected", (userDetails) => {
+    const message = {
+      type: 'userConnected',
+      message: `${userDetails.customerName} has joined the chat`,
+    };
+    chatHistory.push(message);
+    socket.broadcast.emit("userConnected", message);
   });
 
-  socket.on("join-room", (room) => {
-    socket.join(room);
-    console.log(`User joined room ${room}`);
+  socket.on("chatMessage", (message) => {
+    const chatMessage = {
+      type: 'chatMessage',
+      id: socket.id,
+      message: message,
+    };
+    chatHistory.push(chatMessage);
+    io.emit("chatMessage", chatMessage);
   });
 
-  socket.on("disconnect", () => {
-    console.log("User Disconnected", socket.id);
+  socket.on("userDisconnected", (userDetails) => {
+    const message = {
+      type: 'userDisconnected',
+      message: `${userDetails.customerName} has left the chat`,
+    };
+    chatHistory.push(message);
+    io.emit("userDisconnected", message);
   });
 });
 
