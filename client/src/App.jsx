@@ -1,11 +1,13 @@
 import { useState } from "react";
 import ChatWindow from "./chatWindow/ChatWindow";
-import "./App.css";
+import "./App.css"; 
+
 const App = () => {
+
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
-  const [customerName, setCustomerName] = useState("new user");
-  const [mobileContact, setMobileContact] = useState("99999");
-  const [itemsToOrder, setItemsToOrder] = useState(["One", "Two"]);
+  const [customerName, setCustomerName] = useState("");
+  const [mobileContact, setMobileContact] = useState("");
+  const [itemsToOrder, setItemsToOrder] = useState([""]);
   const [deliveryDateTime, setDeliveryDateTime] = useState("");
   const [errors, setErrors] = useState({});
   const [userDetails, setUserDetails] = useState({
@@ -14,6 +16,11 @@ const App = () => {
     itemsToOrder: [""],
     deliveryDateTime: ""
   });
+
+  const handleLogout = () => {
+    setIsUserLoggedIn(false);
+    
+  }
   const handleSubmit = (e) => {
     e.preventDefault();
     const errors = {};
@@ -57,13 +64,13 @@ const App = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-8 p-4 bg-gray-100 rounded-lg shadow-lg">
+    <div className="App">
       {isUserLoggedIn && (
-        <div className="absolute left-64 border-black border rounded-2xl">
-          <ChatWindow userDetails={userDetails} hidden = {!isUserLoggedIn} setHidden = {()=>setIsUserLoggedIn}/>
+        <div>
+          <ChatWindow userDetails={userDetails} hidden = {!isUserLoggedIn} handleLogout= {handleLogout}/>
         </div>
       )}
-
+<div className="max-w-md mx-auto mt-8 p-4 bg-gray-100 rounded-lg shadow-lg">
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
           <label className="block text-sm font-semibold text-gray-600">
@@ -99,18 +106,19 @@ const App = () => {
           <label className="block text-sm font-semibold text-gray-600">
             Items to Order:
           </label>
-          <div className="grid gap-2">
+          <div className="grid gap-1">
             {itemsToOrder.map((item, index) => (
               <div key={index} className="flex items-center gap-4">
                 <input
+                
                   type="text"
                   value={item}
                   onChange={(event) => handleInputChange(index, event)}
-                  className="w-40 px-3 py-2 mt-1 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
+                  className="w-80 px-3 py-2 mt-1 border rounded-md focus:outline-none focus:ring focus:border-blue-300"
                 />
                 <button
                   type="button"
-                  className="px-2 py-1 text-sm text-white bg-green-500 rounded-md"
+                  className="px-2 py-1 text-lg border-none text-white bg-green-500 rounded-md"
                   onClick={() => handleAddFields()}
                 >
                   +
@@ -118,7 +126,7 @@ const App = () => {
                 {index !== 0 && (
                   <button
                     type="button"
-                    className="px-2 py-1 text-sm text-white bg-red-500 rounded-md"
+                    className="px-3 py-1 text-lg text-white border-none bg-red-500 rounded-md"
                     onClick={() => handleRemoveFields(index)}
                   >
                     -
@@ -155,7 +163,8 @@ const App = () => {
           Submit
         </button>
       </form>
-    </div>
+      </div>
+      </div>
   );
 };
 

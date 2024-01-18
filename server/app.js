@@ -26,16 +26,20 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Please use the port 5173 to use the application51");
 });
 let chatHistory = [];
 
 io.on("connection", (socket) => {
+
   socket.emit("chatHistory", chatHistory);
   socket.on("userConnected", (userDetails) => {
+      // Store the username in the socket object
+      socket.userDetails = userDetails;
     const message = {
       type: 'userConnected',
       message: `${userDetails.customerName} has joined the chat`,
+      userDetails
     };
     chatHistory.push(message);
     socket.broadcast.emit("userConnected", message);
@@ -45,7 +49,9 @@ io.on("connection", (socket) => {
     const chatMessage = {
       type: 'chatMessage',
       id: socket.id,
-      message: message,
+      // username: socket.userDetails.customerName,
+      message: message.message,
+      userName: message.username
     };
     chatHistory.push(chatMessage);
     io.emit("chatMessage", chatMessage);
