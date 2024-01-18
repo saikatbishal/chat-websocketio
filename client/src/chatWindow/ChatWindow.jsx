@@ -69,9 +69,9 @@ const ChatWindow = ({ hidden, userDetails, handleLogout }) => {
     >
       <div className="flex justify-between pb-8 border-b">
         <h1 className="text-2xl font-bold">Chat Window</h1>
-        <span onClick={() => handleLogout()} className="text-red-500">
+{/*         <span onClick={() => handleLogout()} className="text-red-500">
           X
-        </span>
+        </span> */}
       </div>
 
       <div>
